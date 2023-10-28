@@ -93,7 +93,6 @@ public:
       }
     }
 
-
     visualization_msgs::Marker marker_debug;
     marker_debug.header.frame_id = "map";
     marker_debug.header.stamp = ros::Time();
@@ -128,7 +127,7 @@ public:
       marker_debug.colors[i].g = 0.0;
       marker_debug.colors[i].b = 1.0;
     }
-    
+
     marker_publisher_.publish(marker_debug);
 
     return true;

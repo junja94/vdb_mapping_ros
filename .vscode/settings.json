@@ -6,6 +6,7 @@
         "list": "cpp",
         "string": "cpp",
         "vector": "cpp",
-        "core": "cpp"
+        "core": "cpp",
+        "chrono": "cpp"
     }
 }

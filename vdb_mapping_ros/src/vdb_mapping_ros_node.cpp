@@ -31,6 +31,9 @@
 #include <vdb_mapping_ros/rayCastHandler.hpp>
 #include <vdb_mapping_ros/ray_patterns/VelodynPattern.hpp>
 
+
+using namespace std::chrono;
+
 int main(int argc, char* argv[])
 {
   ros::init(argc, argv, "vdb_mapping_node");
@@ -46,7 +49,12 @@ int main(int argc, char* argv[])
 
   while (ros::ok()) {
     // ray_cast_handler.test();
+    auto start = high_resolution_clock::now();
     ray_cast_handler.performRayCast(ray_directions, 10.0);
+
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<microseconds>(stop - start);
+    std::cout << duration.count() << std::endl;
     ros::spinOnce();
   }
 
