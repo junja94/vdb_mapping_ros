@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "map": "cpp",
+        "*.tcc": "cpp",
+        "deque": "cpp",
+        "list": "cpp",
+        "string": "cpp",
+        "vector": "cpp",
+        "core": "cpp"
+    }
+}

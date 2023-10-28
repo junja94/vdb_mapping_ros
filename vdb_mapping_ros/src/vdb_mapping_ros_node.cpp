@@ -28,11 +28,27 @@
 #include <ros/ros.h>
 #include <vdb_mapping/OccupancyVDBMapping.h>
 #include <vdb_mapping_ros/VDBMappingROS.h>
+#include <vdb_mapping_ros/rayCastHandler.hpp>
+#include <vdb_mapping_ros/ray_patterns/VelodynPattern.hpp>
 
 int main(int argc, char* argv[])
 {
   ros::init(argc, argv, "vdb_mapping_node");
   VDBMappingROS<vdb_mapping::OccupancyVDBMapping> vdb_mapping;
-  ros::spin();
+
+  ros::NodeHandle nh("~ray_cast_handler");
+  RayCastHandler<vdb_mapping::OccupancyVDBMapping> ray_cast_handler(nh, &vdb_mapping);
+
+  VelodynPattern velodyn_pattern;
+  velodyn_pattern.init(5.0, 5.0, 25.0, 10.0);
+  Eigen::MatrixXd ray_directions;
+  velodyn_pattern.getRayDirections(ray_directions);
+
+  while (ros::ok()) {
+    // ray_cast_handler.test();
+    ray_cast_handler.performRayCast(ray_directions, 10.0);
+    ros::spinOnce();
+  }
+
   return 0;
 }
