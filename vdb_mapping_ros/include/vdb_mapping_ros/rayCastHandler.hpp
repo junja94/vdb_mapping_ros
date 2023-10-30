@@ -52,6 +52,8 @@ public:
 
   ~RayCastHandler()
   {
+    marker_publisher_.shutdown();
+    ray_hits_publisher_.shutdown();
   }
 
   void setParams(const std::string& map_frame){
@@ -68,6 +70,9 @@ public:
       velodyn_pattern_.getRayDirections(ray_directions_);
     }
 
+    ROS_INFO_STREAM(ray_directions_.rows() << " " << ray_directions_.cols() << " " << ray_directions_.size());
+
+    res.num_points = (int) ray_directions_.size();
     res.success = true;
     return true;
   }

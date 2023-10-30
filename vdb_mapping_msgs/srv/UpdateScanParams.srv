@@ -3,4 +3,5 @@ float64 hor_resolution
 float64 ver_resolution
 float64 vertical_fov
 ---
+int32 num_points
 bool success
