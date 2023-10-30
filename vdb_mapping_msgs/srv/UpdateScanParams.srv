@@ -1,0 +1,6 @@
+Header header
+float64 hor_resolution
+float64 ver_resolution
+float64 vertical_fov
+---
+bool success

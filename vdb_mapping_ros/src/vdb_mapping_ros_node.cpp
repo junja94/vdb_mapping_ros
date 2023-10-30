@@ -29,12 +29,11 @@
 #include <vdb_mapping/OccupancyVDBMapping.h>
 #include <vdb_mapping_ros/VDBMappingROS.h>
 #include <vdb_mapping_ros/rayCastHandler.hpp>
-#include <vdb_mapping_ros/ray_patterns/VelodynPattern.hpp>
-
+#include <vdb_mapping_msgs/UpdateScanParams.h>
 
 using namespace std::chrono;
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
   ros::init(argc, argv, "vdb_mapping_node");
   VDBMappingROS<vdb_mapping::OccupancyVDBMapping> vdb_mapping;
@@ -42,21 +41,28 @@ int main(int argc, char* argv[])
   ros::NodeHandle nh("~ray_cast_handler");
   RayCastHandler<vdb_mapping::OccupancyVDBMapping> ray_cast_handler(nh, &vdb_mapping);
 
-  VelodynPattern velodyn_pattern;
-  velodyn_pattern.init(5.0, 5.0, 25.0, 10.0);
-  Eigen::MatrixXd ray_directions;
-  velodyn_pattern.getRayDirections(ray_directions);
-
-  while (ros::ok()) {
-    // ray_cast_handler.test();
-    auto start = high_resolution_clock::now();
-    ray_cast_handler.performRayCast(ray_directions, 10.0);
-
-    auto stop = high_resolution_clock::now();
-    auto duration = duration_cast<microseconds>(stop - start);
-    std::cout << duration.count() << std::endl;
-    ros::spinOnce();
-  }
-
+  ros::spin();
+  
   return 0;
 }
+
+
+    // if (test_cnt > 50)
+    // {
+    //   std::cout << "Callin" << std::endl;
+    //   vdb_mapping_msgs::UpdateScanParams srv;
+    //   srv.request.hor_resolution = 5.0;
+    //   srv.request.ver_resolution = 5.0;
+    //   srv.request.vertical_fov = 30.0;
+
+    //   if (serviceClient.call(srv))
+    //   {
+    //     ROS_INFO("Service called");
+    //   }
+    //   else
+    //   {
+    //     ROS_ERROR("Failed to call service");
+    //   }
+
+    //   test_cnt = 0;
+    // }

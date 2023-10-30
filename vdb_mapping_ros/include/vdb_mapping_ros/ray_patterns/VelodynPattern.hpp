@@ -12,7 +12,7 @@
   public:
     VelodynPattern() {}
 
-    void init(const double hor_resolution, 
+    void reset(const double hor_resolution, 
               const double ver_resolution,
               const double vertical_fov, 
               const double max_range = 10.0)

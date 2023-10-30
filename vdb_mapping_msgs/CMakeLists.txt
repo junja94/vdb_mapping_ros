@@ -62,6 +62,8 @@ add_service_files(
   TriggerMapSectionUpdate.srv
   GetOccGrid.srv
   Raytrace.srv
+  UpdateScanParams.srv
+  GetRayHits.srv
 )
 
 ## Generate actions in the 'action' folder
