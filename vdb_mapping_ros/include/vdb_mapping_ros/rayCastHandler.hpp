@@ -126,8 +126,7 @@ public:
 
   // TODO: implement with the pointcloud version
   bool performRayCast(const double max_range,
-                      Eigen::VectorXf &ray_hits_flatten,
-                      std::string robot_frame_id = "base")
+                      Eigen::VectorXf &ray_hits_base_flatten)
   {
 
     Eigen::MatrixXd rays;
@@ -138,14 +137,19 @@ public:
       num_rays = ray_directions_.rows();
     }
 
-    geometry_msgs::TransformStamped tf_b_to_m;
+    geometry_msgs::TransformStamped tf_b_to_m, tf_m_to_b;
     Eigen::Matrix<double, 4, 4> tf_b_to_m_eigen;
+    Eigen::Matrix<double, 3, 3> rot_m_to_b;
     tf_b_to_m_eigen.setIdentity();
+    rot_m_to_b.setIdentity();
+
 
     try
     {
-      tf_b_to_m = tf_buffer_.lookupTransform(map_frame_, robot_frame_id, ros::Time::now(), ros::Duration(0.05));
+      tf_b_to_m = tf_buffer_.lookupTransform(map_frame_, base_frame_, ros::Time::now(), ros::Duration(0.05));
       tf_b_to_m_eigen = tf2::transformToEigen(tf_b_to_m).matrix();
+
+      rot_m_to_b = tf_b_to_m_eigen.block(0, 0, 3, 3).transpose();
     }
     catch (tf2::TransformException &ex)
     {
@@ -161,8 +165,10 @@ public:
     origin_in_map = tf_b_to_m_eigen * origin_in_map;
     openvdb::Vec3d origin_vdb(origin_in_map[0], origin_in_map[1], origin_in_map[2]);
 
+
     auto start = high_resolution_clock::now();
 
+    ray_hits_base_flatten.setZero(num_rays * 3);
     for (int i = 0; i < num_rays; i++)
     {
       Eigen::Vector3d direction_in_map = tf_b_to_m_eigen.block(0, 0, 3, 3) * rays.row(i).transpose();
@@ -183,9 +189,11 @@ public:
       {
         ray_hits.segment<3>(data_index) = (origin_in_map.head(3) + max_range * direction_in_map).cast<float>();
       }
+      
+      // transform into base frame
+      Eigen::Vector3d ray_hit_base = rot_m_to_b * (ray_hits.segment<3>(data_index).cast<double>() - origin_in_map.head(3));
+      ray_hits_base_flatten.segment<3>(data_index) = ray_hit_base.cast<float>();
     }
-
-    ray_hits_flatten = ray_hits;
 
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stop - start);
@@ -238,6 +246,7 @@ private:
   ros::Publisher marker_publisher_;
   ros::Publisher ray_hits_publisher_;
   std::string map_frame_ = "map";
+  std::string base_frame_ = "base";
   tf2_ros::Buffer tf_buffer_;
   tf2_ros::TransformListener tf_listener_{tf_buffer_};
 
