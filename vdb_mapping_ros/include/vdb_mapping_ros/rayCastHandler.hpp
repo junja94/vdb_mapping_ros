@@ -54,6 +54,10 @@ public:
   {
   }
 
+  void setParams(const std::string& map_frame){
+    map_frame_ = map_frame;
+  }
+
   bool setScanParamsCallBack(vdb_mapping_msgs::UpdateScanParams::Request &req,
                              vdb_mapping_msgs::UpdateScanParams::Response &res)
 
@@ -89,6 +93,29 @@ public:
     res.layout.dim[0].size = ray_hits.size();
     res.success = true;
 
+    return true;
+  }
+
+    bool rayCastAndPublish(){
+    Eigen::VectorXf ray_hits;
+    if (!performRayCast(10.0, ray_hits))
+    {
+      ROS_ERROR_STREAM("Ray casting failed");
+      return false;
+    }
+
+    // fill result data
+    std::vector<float> ray_hits_data;
+    ray_hits_data.resize(ray_hits.size());
+    Eigen::VectorXf::Map(&ray_hits_data[0], ray_hits.size()) = ray_hits;
+
+    std_msgs::Float32MultiArray ray_hits_msg;
+    ray_hits_msg.data = ray_hits_data;
+    ray_hits_msg.layout.dim.resize(1);
+    ray_hits_msg.layout.dim[0].label = "ray_hits";
+    ray_hits_msg.layout.dim[0].size = ray_hits.size();
+
+    ray_hits_publisher_.publish(ray_hits_msg);
     return true;
   }
 

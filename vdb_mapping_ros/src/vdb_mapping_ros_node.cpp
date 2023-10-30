@@ -41,8 +41,16 @@ int main(int argc, char *argv[])
   ros::NodeHandle nh("~ray_cast_handler");
   RayCastHandler<vdb_mapping::OccupancyVDBMapping> ray_cast_handler(nh, &vdb_mapping);
 
-  ros::spin();
-  
+ ros::Rate r(10);
+
+  while (ros::ok())
+  {
+    ray_cast_handler.rayCastAndPublish();
+    ros::spinOnce();
+    r.sleep();
+  }
+  // ros::spin();
+
   return 0;
 }
 
