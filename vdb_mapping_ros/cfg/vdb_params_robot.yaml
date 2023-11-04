@@ -1,0 +1,46 @@
+# Basic setup
+map_frame: msf_body_imu_map # map_o3d
+robot_frame: base
+max_range: 10.0
+resolution: 0.1
+prob_hit: 0.99
+prob_miss: 0.10
+thres_min: 0.49
+thres_max: 0.51
+map_save_dir: ""
+
+# Visualizations
+publish_pointcloud: true
+publish_vis_marker: true
+visualization_rate: 2
+
+# Sensor input
+accumulate_updates: true
+accumulation_period: 0.2
+apply_raw_sensor_data: true
+sources: [bpearl_front] #, bpearl_rear]
+velodyne:
+  topic: /point_cloud_filter/lidar/point_cloud_filtered
+  sensor_origin_frame: lidar
+bpearl_front:
+  topic: /robot_self_filter/bpearl_front/point_cloud
+  sensor_origin_frame: bpearl_front
+bpearl_rear:
+  topic: /robot_self_filter/bpearl_rear/point_cloud
+  sensor_origin_frame: bpearl_rear
+
+# Remote mapping
+publish_updates: true
+publish_overwrites: true
+publish_sections: true
+section_update:
+  rate: 1
+  min_coord:
+    x: -10
+    y: -10
+    z: -10
+  max_coord:
+    x: 10
+    y: 10
+    z: 10
+

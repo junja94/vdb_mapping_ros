@@ -48,6 +48,7 @@ public:
   
     trigger_get_ray_cast_service_ = 
         node_handle_.advertiseService("get_ray_cast", &RayCastHandler::rayCastCallBack, this);
+      
   }
 
   ~RayCastHandler()

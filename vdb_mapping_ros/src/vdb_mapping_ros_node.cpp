@@ -40,7 +40,9 @@ int main(int argc, char *argv[])
 
   ros::NodeHandle nh("~ray_cast_handler");
   RayCastHandler<vdb_mapping::OccupancyVDBMapping> ray_cast_handler(nh, &vdb_mapping);
+  ray_cast_handler.setParams(vdb_mapping.getMapFrame());
 
+   
  ros::Rate r(10);
 
   while (ros::ok())
