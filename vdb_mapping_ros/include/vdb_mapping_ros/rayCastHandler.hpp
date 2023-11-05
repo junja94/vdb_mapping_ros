@@ -73,17 +73,19 @@ public:
 
     ROS_INFO_STREAM(ray_directions_.rows() << " " << ray_directions_.cols() << " " << ray_directions_.size());
 
-    res.num_points = (int) ray_directions_.size();
+    res.num_points = (int) ray_directions_.rows();
     res.success = true;
     return true;
   }
+
 
   bool rayCastCallBack(vdb_mapping_msgs::GetRayHits::Request &,
                       vdb_mapping_msgs::GetRayHits::Response &res){
     
     // performRayCast
     Eigen::VectorXf ray_hits;
-    if (!performRayCast(10.0, ray_hits))
+    Eigen::VectorXf ray_distances;
+    if (!performRayCast(10.0, ray_hits, ray_distances))
     {
       ROS_ERROR_STREAM("Ray casting failed");
       return false;
@@ -104,24 +106,26 @@ public:
 
     bool rayCastAndPublish(){
     Eigen::VectorXf ray_hits;
-    if (!performRayCast(10.0, ray_hits))
+    Eigen::VectorXf ray_distances;
+
+    if (!performRayCast(10.0, ray_hits, ray_distances))
     {
       ROS_ERROR_STREAM("Ray casting failed");
       return false;
     }
 
     // fill result data
-    std::vector<float> ray_hits_data;
-    ray_hits_data.resize(ray_hits.size());
-    Eigen::VectorXf::Map(&ray_hits_data[0], ray_hits.size()) = ray_hits;
+    std::vector<float> ray_distances_data;
+    ray_distances_data.resize(ray_distances.size());
+    Eigen::VectorXf::Map(&ray_distances_data[0], ray_distances.size()) = ray_distances;
 
-    std_msgs::Float32MultiArray ray_hits_msg;
-    ray_hits_msg.data = ray_hits_data;
-    ray_hits_msg.layout.dim.resize(1);
-    ray_hits_msg.layout.dim[0].label = "ray_hits";
-    ray_hits_msg.layout.dim[0].size = ray_hits.size();
+    std_msgs::Float32MultiArray ray_msg;
+    ray_msg.data = ray_distances_data;
+    ray_msg.layout.dim.resize(1);
+    ray_msg.layout.dim[0].label = "ray_data";
+    ray_msg.layout.dim[0].size = ray_distances.size();
 
-    ray_hits_publisher_.publish(ray_hits_msg);
+    ray_hits_publisher_.publish(ray_msg);
     return true;
   }
 
@@ -132,7 +136,9 @@ public:
 
   // TODO: implement with the pointcloud version
   bool performRayCast(const double max_range,
-                      Eigen::VectorXf &ray_hits_base_flatten)
+                      Eigen::VectorXf &ray_hits_base_flatten,
+                      Eigen::VectorXf &ray_distances_flatten
+                      )
   {
 
     Eigen::MatrixXd rays;
@@ -175,6 +181,7 @@ public:
     auto start = high_resolution_clock::now();
 
     ray_hits_base_flatten.setZero(num_rays * 3);
+    ray_distances_flatten.setZero(num_rays);
     for (int i = 0; i < num_rays; i++)
     {
       Eigen::Vector3d direction_in_map = tf_b_to_m_eigen.block(0, 0, 3, 3) * rays.row(i).transpose();
@@ -199,6 +206,7 @@ public:
       // transform into base frame
       Eigen::Vector3d ray_hit_base = rot_m_to_b * (ray_hits.segment<3>(data_index).cast<double>() - origin_in_map.head(3));
       ray_hits_base_flatten.segment<3>(data_index) = ray_hit_base.cast<float>();
+      ray_distances_flatten[i] = ray_hit_base.norm();
     }
 
     auto stop = high_resolution_clock::now();
