@@ -200,7 +200,8 @@ public:
       }
       else
       {
-        ray_hits.segment<3>(data_index) = (origin_in_map.head(3) + max_range * direction_in_map).cast<float>();
+        // ray_hits.segment<3>(data_index) = (origin_in_map.head(3) + max_range * direction_in_map).cast<float>();
+        ray_hits.segment<3>(data_index) = (origin_in_map.head(3) + 0.0 * direction_in_map).cast<float>();
       }
       
       // transform into base frame
