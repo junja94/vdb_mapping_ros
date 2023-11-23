@@ -1,7 +1,8 @@
 Header header
 float64 hor_resolution
 float64 ver_resolution
-float64 vertical_fov
+float64 vertical_fov_up
+float64 vertical_fov_down
 ---
 int32 num_points
 bool success

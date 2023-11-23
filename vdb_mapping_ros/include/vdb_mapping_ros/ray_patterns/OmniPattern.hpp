@@ -7,21 +7,22 @@
 #include <vector>
 
 
-  class VelodynPattern
+  class OmniPattern
   {
   public:
-    VelodynPattern() {}
+    OmniPattern() {}
 
     void reset(const double hor_resolution, 
               const double ver_resolution,
-              const double vertical_fov, 
+              const double vertical_fov_up, 
+              const double vertical_fov_down, 
               const double max_range = 10.0)
     {
       maxRange_ = max_range;
 
       // Generate mesh grid
       int num_hor_points = std::ceil(360 / hor_resolution );
-      int num_ver_points = std::ceil((vertical_fov + ver_resolution) / ver_resolution);
+      int num_ver_points = std::ceil((vertical_fov_up + ver_resolution + vertical_fov_down) / ver_resolution);
 
       std::vector<double> hor_points(num_hor_points);
       std::vector<double> ver_points(num_ver_points);
@@ -33,7 +34,7 @@
 
       for (int i = 0; i < num_ver_points; i++)
       {
-        ver_points[i] = i * ver_resolution - 0.5 * vertical_fov;
+        ver_points[i] = i * ver_resolution  - vertical_fov_down;
         ver_points[i] *= M_PI / 180.0; // deg to rad
       }
 
@@ -54,9 +55,9 @@
           rayDirections_(data_index, 1) = std::sin(hor_points[j]);
           rayDirections_(data_index, 2) = std::tan(ver_points[i]);
           rayDirections_.row(data_index).normalize();
-
         }
       }
+      std::cout <<"rayDirections_" << rayDirections_ << std::endl;
 
       // initialize buffers
       heightMeasurmentsVisualizer_ = Eigen::MatrixXd::Zero(numPoints, 4);

@@ -26,6 +26,7 @@
 
 // scan stuff
 #include <vdb_mapping_ros/ray_patterns/VelodynPattern.hpp>
+#include <vdb_mapping_ros/ray_patterns/OmniPattern.hpp>
 #include <vdb_mapping_msgs/UpdateScanParams.h>
 #include <vdb_mapping_msgs/GetRayHits.h>
 
@@ -40,8 +41,8 @@ public:
 
     marker_publisher_ = node_handle_.advertise<visualization_msgs::Marker>("ray_cast_check", 0);
     ray_hits_publisher_ = node_handle_.advertise<std_msgs::Float32MultiArray>("ray_hits", 0);
-    velodyn_pattern_.reset(5.0, 5.0, 25.0, 10.0);
-    velodyn_pattern_.getRayDirections(ray_directions_);
+    scan_pattern_.reset(5.0, 5.0, 25.0, 40.0, 10.0);
+    scan_pattern_.getRayDirections(ray_directions_);
 
     trigger_update_scan_params_service_ =
         node_handle_.advertiseService("update_scan_params", &RayCastHandler::setScanParamsCallBack, this);
@@ -65,10 +66,10 @@ public:
                              vdb_mapping_msgs::UpdateScanParams::Response &res)
 
   {
-    velodyn_pattern_.reset(req.hor_resolution, req.ver_resolution, req.vertical_fov, 10.0);
+    scan_pattern_.reset(req.hor_resolution, req.ver_resolution, req.vertical_fov_up, req.vertical_fov_down, 10.0);
     {
       std::lock_guard<std::mutex> lock(scan_pattern_mutex_);
-      velodyn_pattern_.getRayDirections(ray_directions_);
+      scan_pattern_.getRayDirections(ray_directions_);
     }
 
     ROS_INFO_STREAM(ray_directions_.rows() << " " << ray_directions_.cols() << " " << ray_directions_.size());
@@ -265,7 +266,7 @@ private:
   tf2_ros::Buffer tf_buffer_;
   tf2_ros::TransformListener tf_listener_{tf_buffer_};
 
-  VelodynPattern velodyn_pattern_;
+  OmniPattern scan_pattern_;
   Eigen::MatrixXd ray_directions_;
 
   ros::ServiceServer trigger_update_scan_params_service_;
