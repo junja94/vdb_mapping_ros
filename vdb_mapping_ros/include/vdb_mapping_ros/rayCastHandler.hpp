@@ -133,7 +133,7 @@ public:
     double num_hits = 0.0;
     for (int i = 0; i < ray_directions.rows(); i++){
 
-      if (ray_distances[i] > 0.0){
+      if (ray_distances[i] > 0.0 && ray_distances[i] < 5.0){ // filter out weird values
         double z_this_point = ray_hits[i*3 + 2];
         mean_z += z_this_point;
         num_hits += 1.0;
@@ -171,13 +171,13 @@ public:
     // for debugging
     Eigen::Matrix<double, 3, 3> rot_b_to_m;
     rot_b_to_m = tf_b_to_m_eigen_.block(0, 0, 3, 3);
+    Eigen::Vector3d origin_in_map = (tf_b_to_m_eigen_ * origin_in_base).head(3);
 
     for (int i = 0; i < 9; i++){
       int data_index = i * 3;
 
       Eigen::Vector3d ray_hit_world = rot_b_to_m * ray_hits.segment<3>(data_index).cast<double>();
-      ray_hit_world += tf_b_to_m_eigen_.block(0, 3, 3, 1);
-
+      ray_hit_world += origin_in_map;
 
       geometry_msgs::Point obj;
       obj.x = ray_hit_world[0];
@@ -316,8 +316,7 @@ public:
     openvdb::Vec3d origin_vdb(origin_in_map[0], origin_in_map[1], origin_in_map[2]);
 
 
-    auto start = high_resolution_clock::now();
-
+    // auto start = high_resolution_clock::now();
     ray_hits_base_flatten.setZero(num_rays * 3);
     ray_distances_flatten.setZero(num_rays);
     for (int i = 0; i < num_rays; i++)
@@ -351,9 +350,9 @@ public:
       }
     }
 
-    auto stop = high_resolution_clock::now();
-    auto duration = duration_cast<microseconds>(stop - start);
-    std::cout << "raycast time" << duration.count() / 1000000.0 << std::endl;
+    // auto stop = high_resolution_clock::now();
+    // auto duration = duration_cast<microseconds>(stop - start);
+    // std::cout << "raycast time" << duration.count() / 1000000.0 << std::endl;
 
     // TODO: move to other thread
     visualization_msgs::Marker marker_debug;

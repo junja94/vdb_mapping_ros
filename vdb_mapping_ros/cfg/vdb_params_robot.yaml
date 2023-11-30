@@ -18,7 +18,7 @@ visualization_rate: 2
 accumulate_updates: true
 accumulation_period: 0.2
 apply_raw_sensor_data: true
-sources: [bpearl_front] #, bpearl_rear]
+sources: [velodyne, bpearl_front, bpearl_rear]
 velodyne:
   topic: /point_cloud_filter/lidar/point_cloud_filtered
   sensor_origin_frame: lidar

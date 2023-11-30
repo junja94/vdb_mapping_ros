@@ -18,10 +18,16 @@ visualization_rate: 2
 accumulate_updates: true
 accumulation_period: 0.2
 apply_raw_sensor_data: true
-sources: [velodyne]
+sources: [velodyne, bpearl_front, bpearl_rear]
 velodyne:
   topic: /point_cloud_filter/lidar/point_cloud_filtered
   sensor_origin_frame: lidar
+bpearl_front:
+  topic: /robot_self_filter/bpearl_front/point_cloud
+  sensor_origin_frame: bpearl_front
+bpearl_rear:
+  topic: /robot_self_filter/bpearl_rear/point_cloud
+  sensor_origin_frame: bpearl_rear
 
 # Remote mapping
 publish_updates: true
