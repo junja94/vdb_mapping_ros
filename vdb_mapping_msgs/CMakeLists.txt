@@ -64,6 +64,7 @@ add_service_files(
   Raytrace.srv
   UpdateScanParams.srv
   GetRayHits.srv
+  GetTerrainHeight.srv
 )
 
 ## Generate actions in the 'action' folder
