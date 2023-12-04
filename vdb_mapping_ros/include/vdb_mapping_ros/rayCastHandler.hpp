@@ -337,14 +337,19 @@ public:
 
         // transform into base frame
         Eigen::Vector3d ray_hit_base = rot_m_to_b * (ray_hits.segment<3>(data_index).cast<double>() - origin_in_map.head(3));
+        double ray_norm = ray_hit_base.norm();
+        if (ray_norm >= max_range){
+          ray_hit_base *= max_range / ray_norm;
+          ray_norm = max_range;
+        }
+
         ray_hits_base_flatten.segment<3>(data_index) = ray_hit_base.cast<float>();
-        ray_distances_flatten[i] = ray_hit_base.norm();
+        ray_distances_flatten[i] = ray_norm;
       }
       else
       {
         // ray_hits.segment<3>(data_index) = (origin_in_map.head(3) + max_range * direction_in_map).cast<float>();
-        ray_hits.segment<3>(data_index) = (origin_in_map.head(3) + 0.0 * direction_in_map).cast<float>();
-        
+        ray_hits.segment<3>(data_index) = origin_in_map.head(3).cast<float>();
         ray_hits_base_flatten.segment<3>(data_index).setZero(); 
         ray_distances_flatten[i] = 0.0;
       }
